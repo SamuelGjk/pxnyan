@@ -53,7 +53,7 @@ class _HomePageState extends State<HomePage> {
 
   List<Widget> _buildRankPages() {
     final pages = <Widget>[];
-    _modes.forEach((mode) => pages.add(new RankPage(PageStorageKey<String>(mode.en), mode.en)));
+    _modes.forEach((mode) => pages.add(new RankPage(mode.en)));
     return pages;
   }
 }

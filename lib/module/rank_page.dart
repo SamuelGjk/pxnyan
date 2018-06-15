@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:pxnyan/model/rank.dart';
 import 'package:pxnyan/http/api.dart' as Api;
 import 'package:pxnyan/module/illust_details_page.dart';
+import 'package:pxnyan/module/personal_page.dart';
 import 'package:pxnyan/utils/utils.dart' as Utils;
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:flutter_advanced_networkimage/flutter_advanced_networkimage.dart';
@@ -15,7 +16,7 @@ import 'package:pxnyan/widget/no_more_view.dart';
 class RankPage extends StatefulWidget {
   final String _mode;
 
-  RankPage(Key key, this._mode) : super(key: key);
+  RankPage(this._mode);
 
   @override
   State createState() => new _RankPageState();
@@ -82,23 +83,26 @@ class _RankPageState extends State<RankPage> {
   }
 
   Future loadData(bool clear) async {
-    if (!_isLoading) {
+    if (!_isNoMore && !_isLoading) {
       setState(() => _isLoading = true);
       if (clear) _page = 1;
       Future<Rank> rankFuture = Api.fetchRank(widget._mode, Utils.getYesterdayString(), _page);
       return rankFuture.then(
         (Rank rank) {
           if (rank.status == Api.SUCCESS) {
-            if (rank.count == 0) {
-              _isNoMore = true;
-            } else {
+            if (rank.response[0].works.isNotEmpty) {
               if (clear) {
                 data.clear();
               }
               data.addAll(rank.response[0].works);
-              _page = rank.pagination.next;
+
               // 存储页面数据用于恢复
               PageStorage.of(context).writeState(context, data, identifier: _rankDataIdentifier);
+            }
+            if (rank.pagination.next == null) {
+              _isNoMore = true;
+            } else {
+              _page = rank.pagination.next;
               PageStorage.of(context).writeState(context, _page, identifier: _pageIdentifier);
             }
           }
@@ -140,6 +144,7 @@ class _RankPageState extends State<RankPage> {
       children: <Widget>[
         new RefreshIndicator(
           child: new StaggeredGridView.countBuilder(
+            key: new PageStorageKey<String>(widget._mode),
             // 使用了 NestedScrollView 和 SliverAppBar 后, 子 ScrollView 会被添加一个系统状态栏高度的
             // topPadding, 手动干掉它
             padding: new EdgeInsets.only(top: 0.0),
@@ -218,10 +223,21 @@ class _RankPageState extends State<RankPage> {
                   new Container(
                     width: 30.0,
                     height: 30.0,
-                    child: new CircleAvatar(
-                      backgroundImage: new AdvancedNetworkImage(
-                        work.user.profileImageUrls.px50x50,
-                        header: Api.HEADER,
+                    child: new GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          new MaterialPageRoute(
+                            builder: (context) =>
+                            new PersonalPage(work.user),
+                          ),
+                        );
+                      },
+                      child: new CircleAvatar(
+                        backgroundImage: new AdvancedNetworkImage(
+                          work.user.profileImageUrls.px50x50,
+                          header: Api.HEADER,
+                        ),
                       ),
                     ),
                   ),

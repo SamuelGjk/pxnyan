@@ -19,7 +19,7 @@ class GalleryPageState extends State<GalleryPage> {
   @override
   Widget build(BuildContext context) {
     return new Container(
-      color: Colors.grey.shade900,
+      color: Colors.grey[800],
       child: new Stack(
         children: <Widget>[
           new PageView.builder(

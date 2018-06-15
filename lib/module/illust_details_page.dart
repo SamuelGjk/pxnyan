@@ -5,6 +5,7 @@ import 'package:flutter_advanced_networkimage/flutter_advanced_networkimage.dart
 import 'package:flutter/material.dart';
 import 'package:pxnyan/http/api.dart' as Api;
 import 'package:pxnyan/model/illust_details.dart';
+import 'package:pxnyan/model/illustration.dart';
 import 'package:pxnyan/module/gallery_page.dart';
 import 'package:pxnyan/utils/utils.dart' as Utils;
 import 'package:pxnyan/widget/corner_label.dart';
@@ -65,15 +66,15 @@ class _IllustDetailsPageState extends State<IllustDetailsPage> {
                       if (_illustDetails == null) {
                         _illustDetails = snapshot.data;
                       }
-                      Response response = snapshot.data.response[0];
+                      Illustration illustration = snapshot.data.response[0];
                       _imageUrls.clear();
-                      if (response.isManga) {
+                      if (illustration.isManga) {
                         _imageUrls
-                            .addAll(response.metadata.pages.map((page) => page.imageUrls.large));
+                            .addAll(illustration.metadata.pages.map((page) => page.imageUrls.large));
                       } else {
-                        _imageUrls.add(response.imageUrls.large);
+                        _imageUrls.add(illustration.imageUrls.large);
                       }
-                      return _buildDetails(response);
+                      return _buildDetails(illustration);
                     } else {
                       return new ErrorView(_handleErrorClick, textColor: Colors.white);
                     }
@@ -88,7 +89,7 @@ class _IllustDetailsPageState extends State<IllustDetailsPage> {
     );
   }
 
-  Widget _buildDetails(Response response) {
+  Widget _buildDetails(Illustration illustration) {
     return new ListView(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       children: <Widget>[
@@ -100,13 +101,13 @@ class _IllustDetailsPageState extends State<IllustDetailsPage> {
               children: <Widget>[
                 new Image(
                   image: new AdvancedNetworkImage(
-                    response.imageUrls.px480mw,
+                    illustration.imageUrls.px480mw,
                     header: Api.HEADER,
                   ),
                 ),
                 new Align(
                   alignment: AlignmentDirectional.topEnd,
-                  child: new CornerLabel('${response.pageCount}'),
+                  child: new CornerLabel('${illustration.pageCount}'),
                 ),
               ],
             ),
@@ -126,7 +127,7 @@ class _IllustDetailsPageState extends State<IllustDetailsPage> {
                         child: new Container(
                           margin: const EdgeInsets.only(left: 3.0),
                           child: new Text(
-                            response.user.name,
+                            illustration.user.name,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
@@ -137,7 +138,7 @@ class _IllustDetailsPageState extends State<IllustDetailsPage> {
                       new Container(
                         margin: const EdgeInsets.only(left: 3.0),
                         child: new Text(
-                          '${Utils.getFormatNumber(response.stats.viewsCount)}',
+                          '${Utils.getFormatNumber(illustration.stats.viewsCount)}',
                           style: const TextStyle(fontSize: 14.0),
                         ),
                       ),
@@ -148,8 +149,8 @@ class _IllustDetailsPageState extends State<IllustDetailsPage> {
                       new Container(
                         margin: const EdgeInsets.only(left: 3.0),
                         child: new Text(
-                          '${Utils.getFormatNumber(response.stats.favoritedCount.public +
-                              response.stats.favoritedCount.private)}',
+                          '${Utils.getFormatNumber(illustration.stats.favoritedCount.public +
+                              illustration.stats.favoritedCount.private)}',
                           style: const TextStyle(fontSize: 14.0),
                         ),
                       ),
@@ -161,13 +162,13 @@ class _IllustDetailsPageState extends State<IllustDetailsPage> {
                     child: new Wrap(
                       spacing: 5.0,
                       runSpacing: 5.0,
-                      children: _buildTags(response.tags),
+                      children: _buildTags(illustration.tags),
                     ),
                   ),
                   new Container(
                     alignment: AlignmentDirectional.topStart,
                     margin: const EdgeInsets.only(top: 8.0),
-                    child: new Text(response.caption ?? ''),
+                    child: new Text(illustration.caption ?? ''),
                   ),
                 ],
               ),

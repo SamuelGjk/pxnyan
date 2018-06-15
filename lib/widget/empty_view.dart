@@ -10,7 +10,12 @@ class EmptyView extends StatelessWidget {
     return new Center(
       child: new Text(
         '啥都没有',
-        style: new TextStyle(color: textColor ?? Colors.black87),
+        style: new TextStyle(
+          color: textColor ?? Colors.black54,
+          fontSize: 14.0,
+          decoration: TextDecoration.none,
+          fontWeight: FontWeight.w200,
+        ),
       ),
     );
   }
